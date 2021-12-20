@@ -31,7 +31,7 @@ Scene Path: **[Assets/Scenes/ChestBuild.unity](Assets/Scenes/ChestBuild.unity)**
 <br />
 
 ## External Links
-https://littlegamers2021.itch.io/chestbuild
+https://littlegamers2021.itch.io/shield-animation-3d
 <br/>
 
 Enjoy the game :)
