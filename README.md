@@ -2,7 +2,7 @@
 
 3D game - added an amination that moves while shooting and a shield to protect the player who takes it from getting hit.
 
-** Adiitions: **
+**Adiitions:**
 
 1. Grab the shield before the other player does, there will be a force field around the player who took it and he will be protected from shooting.
 
@@ -24,6 +24,7 @@ Scene Path: **[Assets/Scenes/ChestBuild.unity](Assets/Scenes/ChestBuild.unity)**
 ### Changes (See details in the code's comments):
 
 **[PlayerManager](Assets/scripts/Player/PlayerManager.cs) -** Added code to handle the shield and force field.
+
 **[GameManager](Assets/scripts/Player/GameManager/GameManager.cs) -** Added code to instantiate a shield in the world on a random location.
 
 ### New Scripts:
