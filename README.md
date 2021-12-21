@@ -19,7 +19,7 @@ Shoot with the LEFT MOUSE BUTTON or LCTRL.
 
 ## Components
 
-Scene Path: **[Assets/Scenes/ChestBuild.unity](Assets/Scenes/ChestBuild.unity)**
+Scene Path: **[Assets/Scenes/connecting/Launcher.unity](Assets/Scenes/connecting/Launcher.unity)**
 
 ### Changes (See details in the code's comments):
 
