@@ -2,12 +2,11 @@
 
 3D game - added an amination that moves while shooting and a shield to protect the player who takes it from getting hit.
 
-**Adiitions:**
+**Additions:**
 
 1. Grab the shield before the other player does, there will be a force field around the player who took it and he will be protected from shooting.
 
 2. Try to shoot and see the shooting animation.
-
 <br/>
 
 ## Instructions:
