@@ -1,0 +1,229 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PlayerManager.cs" company="Exit Games GmbH">
+//   Part of: Photon Unity Networking Demos
+// </copyright>
+// <summary>
+//  Used in PUN Basics Tutorial to deal with the networked player instance
+// </summary>
+// <author>developer@exitgames.com</author>
+// --------------------------------------------------------------------------------------------------------------------
+
+using Photon.Pun;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+namespace Com.MyCompany.MyGame
+{
+#pragma warning disable 649
+
+    /// <summary>
+    /// Player manager.
+    /// Handles fire Input and Beams.
+    /// </summary>
+    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
+    {
+        #region Public Fields
+
+        [Tooltip("The current Health of our player")]
+        public float Health = 1f;
+
+        [SerializeField] GameObject weaponObject;
+
+        [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
+        public static GameObject LocalPlayerInstance;
+
+        #endregion
+
+        #region Private Fields
+
+        [Tooltip("The Player's UI GameObject Prefab")] [SerializeField]
+        private GameObject playerUiPrefab;
+
+        [Tooltip("The Beams GameObject to control")] [SerializeField]
+        private GameObject beams;
+
+        [Tooltip("The force field GameObject to enable")]
+        [SerializeField] private GameObject forceField;
+
+        [SerializeField] string beamTag;
+        [SerializeField] string shieldTag;
+
+        //True, when the user is firing
+        bool IsFiring;
+	// CHANGE:
+        bool shieldEnabled;
+
+        #endregion
+
+        #region MonoBehaviour CallBacks
+
+        /// <summary>
+        /// MonoBehaviour method called on GameObject by Unity during early initialization phase.
+        /// </summary>
+        public void Awake()
+        {
+            if (this.beams == null)
+            {
+                Debug.LogError("<Color=Red><b>Missing</b></Color> Beams Reference.", this);
+            }
+            else
+            {
+                this.beams.SetActive(false);
+            }
+
+            // #Important
+            // used in GameManager.cs: we keep track of the localPlayer instance to prevent instanciation when levels are synchronized
+            if (photonView.IsMine)
+            {
+                LocalPlayerInstance = gameObject;
+            }
+
+            // #Critical
+            // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
+            DontDestroyOnLoad(gameObject);
+        }
+
+        /// <summary>
+        /// MonoBehaviour method called on GameObject by Unity during initialization phase.
+        /// </summary>
+        public void Start()
+        {
+            // Create the UI
+            if (this.playerUiPrefab != null)
+            {
+                GameObject _uiGo = Instantiate(this.playerUiPrefab);
+                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+            }
+            else
+            {
+                Debug.LogWarning("<Color=Red><b>Missing</b></Color> PlayerUiPrefab reference on player Prefab.", this);
+            }
+        }
+
+
+        /// <summary>
+        /// MonoBehaviour method called on GameObject by Unity on every frame.
+        /// Process Inputs if local player.
+        /// Show and hide the beams
+        /// Watch for end of game, when local player health is 0.
+        /// </summary>
+        public void Update()
+        {
+            // we only process Inputs and check health if we are the local player
+            if (photonView.IsMine)
+            {
+                this.ProcessInputs();
+
+                if (this.Health <= 0f)
+                {
+                    GameManager.Instance.LeaveRoom();
+                }
+            }
+
+            if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy)
+            {
+                this.beams.SetActive(this.IsFiring);
+            }
+            
+	    // CHANGE:
+            if (this.forceField != null && this.shieldEnabled)
+            {
+                this.forceField.SetActive(true);
+            }
+
+        }
+
+        /// <summary>
+        /// MonoBehaviour method called when the Collider 'other' enters the trigger.
+        /// Affect Health of the Player if the collider is a beam
+        /// Note: when jumping and firing at the same, you'll find that the player's own beam intersects with itself
+        /// One could move the collider further away to prevent this or check if the beam belongs to the player.
+        /// </summary>
+        public void OnTriggerEnter(Collider other)
+        {
+            if (other.tag == beamTag && photonView.IsMine && !shieldEnabled)
+            {
+                this.Health -= 0.1f;
+            }
+	    // CHANGE:
+            else if (other.tag == shieldTag && photonView.IsMine)
+            {
+                this.shieldEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// MonoBehaviour method called once per frame for every Collider 'other' that is touching the trigger.
+        /// We're going to affect health while the beams are interesting the player
+        /// </summary>
+        /// <param name="other">Other.</param>
+        public void OnTriggerStay(Collider other)
+        {
+            if (other.tag == beamTag && photonView.IsMine && !shieldEnabled)
+            {
+                // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
+                this.Health -= 0.1f * Time.deltaTime;
+            }
+	    // CHANGE:
+            else if (other.tag == shieldTag && photonView.IsMine)
+            {
+                this.shieldEnabled = true;
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Processes the inputs. This MUST ONLY BE USED when the player has authority over this Networked GameObject (photonView.isMine == true)
+        /// </summary>
+        void ProcessInputs()
+        {
+            // CHANGE: Added animation for the shooting robot:
+            if (Input.GetButtonDown("Fire1"))
+            {
+                if (!this.IsFiring)
+                {
+                    this.IsFiring = true;
+                    weaponObject.GetComponent<Animator>().SetBool("isShooting", true);
+                }
+            }
+
+            if (Input.GetButtonUp("Fire1"))
+            {
+                if (this.IsFiring)
+                {
+                    this.IsFiring = false;
+                    weaponObject.GetComponent<Animator>().SetBool("isShooting", false);
+
+                }
+            }
+        }
+
+        #endregion
+
+        #region IPunObservable implementation
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+	    // CHANGE: send shieldEnabled field
+            if (stream.IsWriting)
+            {
+                // We own this player: send the others our data
+                stream.SendNext(this.IsFiring);
+                stream.SendNext(this.Health);
+                stream.SendNext(this.shieldEnabled);
+            }
+            else
+            {
+                // Network player, receive data
+                this.IsFiring = (bool) stream.ReceiveNext();
+                this.Health = (float) stream.ReceiveNext();
+                this.shieldEnabled = (bool)stream.ReceiveNext();
+            }
+        }
+
+        #endregion
+    }
+}
