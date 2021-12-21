@@ -2,32 +2,34 @@
 
 3D game - added an amination that moves while shooting and a shield to protect the player who takes it from getting hit.
 
-Take the shield before the other player, there will be a force field around the player who took it and he will be protected from shooting.
+** Adiitions: **
 
-Also, try to shoot and see the animation moves.
+1. Grab the shield before the other player does, there will be a force field around the player who took it and he will be protected from shooting.
+
+2. Try to shoot and see the shooting animation.
+
 <br/>
 
 ## Instructions:
-Use 'a','s','d','w' keys on keyboard to walk.
 
-use the mouse to navigate the camera.
+Move with your MOUSE and W, A, S, D keys.
 
-Go to the chest in the bedroom and press 'E' to open it,
-
-then use SPACE to achieve the weapon inside the chest.
-
-To close the chest just walk away from it.
+Shoot with the LEFT MOUSE BUTTON or LCTRL.
 <br/>
 
 ## Components
 
 Scene Path: **[Assets/Scenes/ChestBuild.unity](Assets/Scenes/ChestBuild.unity)**
 
+### Changes (See details in the code's comments):
+
+**[PlayerManager](Assets/scripts/Player/PlayerManager.cs) -** Added code to handle the shield and force field.
+**[GameManager](Assets/scripts/Player/GameManager/GameManager.cs) -** Added code to instantiate a shield in the world on a random location.
+
 ### New Scripts:
 
-**[TriggerChest](Assets/TriggerChest.cs) -** Used on an animated chest and let the player open/close the chest.
+**[ShieldPosition](Assets/scripts/ShieldPosition.cs) -** Used on a shield to make it float and rotate.
 
-**[PickUpWeapon](Assets/PickUpWeapon.cs) -** Used to let the player pick up the weapon from the chest.
 <br />
 
 ## External Links
