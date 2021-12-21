@@ -25,7 +25,7 @@ Scene Path: **[Assets/Scenes/connecting/Launcher.unity](Assets/Scenes/connecting
 
 **[PlayerManager](Assets/scripts/Player/PlayerManager.cs) -** Added code to handle the shield and force field.
 
-**[GameManager](Assets/scripts/Player/GameManager/GameManager.cs) -** Added code to instantiate a shield in the world on a random location.
+**[GameManager](Assets/scripts/GameManger/GameManager.cs) -** Added code to instantiate a shield in the world on a random location.
 
 ### New Scripts:
 
